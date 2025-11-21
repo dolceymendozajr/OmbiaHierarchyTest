@@ -28,12 +28,10 @@ export interface CreatePermissionDto {
 }
 
 export interface EffectivePermission {
-  permissionId: string;
-  permissionName: string;
-  nodeId: string;
-  nodeName: string;
-  inherited: boolean;
-  depth: number;
+  id: string;
+  code: string;
+  description: string;
+  hierarchyId: string;
 }
 
 // User Types
@@ -72,7 +70,7 @@ export interface Notification {
   message: string;
   isRead: boolean;
   createdAt: string;
-  type?: 'info' | 'warning' | 'success' | 'error';
+  type?: "info" | "warning" | "success" | "error";
 }
 
 // Dashboard Stats

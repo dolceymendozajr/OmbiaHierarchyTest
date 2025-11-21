@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import * as userService from "../services/userService";
+import { userService } from "../services/userService";
 import type { User } from "../types";
 
 type UserContextValue = {
@@ -19,16 +19,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadUsers = async () => {
     try {
-      const fn = (userService as any).getAll;
-      if (typeof fn === "function") {
-        const res = await fn();
-        setUsers(res ?? []);
-      } else {
-        setUsers([]);
-        console.warn(
-          "userService does not export a getUsers/fetchUsers/list function"
-        );
-      }
+      const res = await userService.getAll();
+      setUsers(res ?? []);
     } catch (err) {
       console.error("Failed to load users", err);
       setUsers([]);

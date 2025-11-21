@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { hierarchyService } from '@/services/hierarchyService';
-import { HierarchyTree } from '@/components/hierarchy/HierarchyTree';
-import { HierarchyForm } from '@/components/hierarchy/HierarchyForm';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { hierarchyService } from "@/services/hierarchyService";
+import { HierarchyTree } from "@/components/hierarchy/HierarchyTree";
+import { HierarchyForm } from "@/components/hierarchy/HierarchyForm";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { toast } from '@/hooks/use-toast';
-import { HierarchyNode } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
+import { HierarchyNode } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Hierarchies() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -24,12 +24,12 @@ export default function Hierarchies() {
   const queryClient = useQueryClient();
 
   const { data: hierarchies = [], isLoading } = useQuery({
-    queryKey: ['hierarchies'],
+    queryKey: ["hierarchies"],
     queryFn: hierarchyService.getAll,
   });
 
   const { data: effectivePermissions = [] } = useQuery({
-    queryKey: ['effectivePermissions', selectedNode?.id],
+    queryKey: ["effectivePermissions", selectedNode?.id],
     queryFn: () => hierarchyService.getEffectivePermissions(selectedNode!.id),
     enabled: !!selectedNode,
   });
@@ -37,8 +37,8 @@ export default function Hierarchies() {
   const createMutation = useMutation({
     mutationFn: hierarchyService.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hierarchies'] });
-      toast({ title: 'Nodo creado exitosamente' });
+      queryClient.invalidateQueries({ queryKey: ["hierarchies"] });
+      toast({ title: "Nodo creado exitosamente" });
       setIsFormOpen(false);
       setParentIdForNew(null);
     },
@@ -47,8 +47,8 @@ export default function Hierarchies() {
   const deleteMutation = useMutation({
     mutationFn: hierarchyService.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hierarchies'] });
-      toast({ title: 'Nodo eliminado exitosamente' });
+      queryClient.invalidateQueries({ queryKey: ["hierarchies"] });
+      toast({ title: "Nodo eliminado exitosamente" });
       setSelectedNode(null);
     },
   });
@@ -90,7 +90,7 @@ export default function Hierarchies() {
                 nodes={hierarchies}
                 onSelectNode={setSelectedNode}
                 onDeleteNode={(id) => {
-                  if (confirm('¿Está seguro de eliminar este nodo?')) {
+                  if (confirm("¿Está seguro de eliminar este nodo?")) {
                     deleteMutation.mutate(id);
                   }
                 }}
@@ -109,8 +109,12 @@ export default function Hierarchies() {
             {selectedNode ? (
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">{selectedNode.name}</h3>
-                  <p className="text-sm text-muted-foreground">ID: {selectedNode.id}</p>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {selectedNode.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    ID: {selectedNode.id}
+                  </p>
                 </div>
 
                 <div>
@@ -119,20 +123,20 @@ export default function Hierarchies() {
                     <div className="space-y-2">
                       {effectivePermissions.map((perm) => (
                         <div
-                          key={`${perm.permissionId}-${perm.nodeId}`}
+                          key={`${perm.id}`}
                           className="flex items-center justify-between p-2 bg-muted rounded"
                         >
-                          <span className="text-sm">{perm.permissionName}</span>
-                          {perm.inherited && (
-                            <Badge variant="outline" className="text-xs">
-                              Heredado (nivel {perm.depth})
-                            </Badge>
-                          )}
+                          <span className="text-sm">{perm.description}</span>
+                          <Badge variant="outline" className="text-xs">
+                            Heredado (nivel {perm.code})
+                          </Badge>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">Sin permisos asignados</p>
+                    <p className="text-sm text-muted-foreground">
+                      Sin permisos asignados
+                    </p>
                   )}
                 </div>
               </div>
@@ -153,10 +157,12 @@ export default function Hierarchies() {
           <HierarchyForm
             hierarchies={hierarchies}
             parentId={parentIdForNew}
-            onSubmit={(data) => createMutation.mutate({ 
-              name: data.name, 
-              parentId: data.parentId 
-            })}
+            onSubmit={(data) =>
+              createMutation.mutate({
+                name: data.name,
+                parentId: data.parentId,
+              })
+            }
             onCancel={() => {
               setIsFormOpen(false);
               setParentIdForNew(null);
